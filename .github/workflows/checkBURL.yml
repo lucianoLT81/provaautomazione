@@ -19,13 +19,6 @@ jobs:
           curl -s https://www.regione.lazio.it/bur | sed -E 's/(\?|&)(v|t|s|id)=[0-9a-zA-Z]*//g' > bur_nuovo.html
           
           # Confronta solo il testo (ignora differenze di spazi o metadati)
-          if ! diff -q -w bur_nuovo.html bur_vecchio.html; then
-            mv bur_nuovo.html bur_vecchio.html
-            git config user.name "GitHub Action"
-            git config user.email "action@github.com"
-            git add bur_vecchio.html
-            git commit -m "Nuovo BUR rilevato"
-            git push
             # Se il file è cambiato, cerca i link PDF e scaricali
           if ! diff -q -w bur_nuovo.html bur_vecchio.html; then
             
