@@ -11,4 +11,5 @@ jobs:
     steps:
       - name: Report
         run: |
-          echo "Controllo attivato. Riceverai il log di questa operazione via eemail da GitHub."
+          echo "stronzo"
+          exit 1
