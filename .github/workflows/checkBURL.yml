@@ -51,7 +51,7 @@ jobs:
             git add bur_vecchio.html allegati_nuovi/
             git commit -m "Nuovo BUR e allegati PDF rilevati"
             git push
-            if [NEWPDF=true]
+            if ["$NEWPDF"=true]; then
               echo "NUOVO DOCUMENTO PDF SCARICATI - STRONZO!"
               exit 1
             fi
