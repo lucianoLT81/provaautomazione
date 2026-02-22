@@ -59,10 +59,10 @@ jobs:
             git add bur_vecchio.html allegati_nuovi/
             git commit -m "Nuovo BUR e allegati PDF rilevati"
             git push
-            if ["$NEWPDF"=1]; then
+            if [ "$NEWPDF" = "1" ]; then
               echo "NUOVO DOCUMENTO PDF SCARICATO SENZA STRINGA - MALEDIZIONE!"
               exit 1
-            else
+            elif [ "$NEWPDF" = "2" ]; then
               echo "STRINGA ASILI TROVATA - EVVIVA!"
               exit 1
             fi
