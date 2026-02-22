@@ -30,7 +30,7 @@ jobs:
           if ! diff -q bur_nuovo.json bur_vecchio.json; then
             mkdir -p allegati_nuovi
             
-            jq -r '.[].allegati[].link' bur_nuovo.json | while read -r link; do
+            jq -r '.risultato[].allegati[].link' bur_nuovo.json | while read -r link; do
               NOME_FILE=$(basename "$link")
               URL_COMPLETO="https://www.regione.lazio.it$link"
               
