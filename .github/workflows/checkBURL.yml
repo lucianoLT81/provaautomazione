@@ -34,9 +34,9 @@ jobs:
              NOME_FILE=$(basename "$link")
               # Controlla se il file esiste già nella cartella degli allegati
               if [ ! -f "allegati_nuovi/$NOME_FILE" ]; then
+                NEWPDF=true
                 URL_COMPLETO=$(echo "$link" | sed 's|^/|https://www.regione.lazio.it/|')
                 echo "Nuovo file rilevato: $NOME_FILE. Scarico..."
-                NEWPDF=true
                 curl -sL "$URL_COMPLETO" -o "allegati_nuovi/$NOME_FILE"
                 
                 # Qui puoi inserire il controllo pdftotext se ti serve cercare la stringa
