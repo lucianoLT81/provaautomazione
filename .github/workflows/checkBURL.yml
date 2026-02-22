@@ -52,7 +52,7 @@ jobs:
 
             git config user.name "GitHub Action"
             git config user.email "action@github.com"
-            git add bur_vecchio.html allegati_nuovi/
+            git add bur_vecchio.json allegati_nuovi/
             git commit -m "Nuova pagina BUR rilevata"
             git push
             if [ "$NEWPDF" = "1" ]; then
