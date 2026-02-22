@@ -18,7 +18,7 @@ jobs:
       - name: Verifica BUR
         run: |
           set -x
-          NEWPDF=false #variabile di controllo per il rinvenimento di nuovi pdf od il rivenimento di chiavi specifiche nei nuovi pdf
+          NEWPDF=0 #variabile di controllo per il rinvenimento di nuovi pdf od il rivenimento di chiavi specifiche nei nuovi pdf
           # Scarica la pagina e rimuove i tag dinamici/casuali
           curl -s https://www.regione.lazio.it/bur | sed -E 's/(\?|&)(v|t|s|id)=[0-9a-zA-Z]*//g' > bur_nuovo.html
           
@@ -34,10 +34,18 @@ jobs:
              NOME_FILE=$(basename "$link")
               # Controlla se il file esiste già nella cartella degli allegati
               if [ ! -f "allegati_nuovi/$NOME_FILE" ]; then
-                NEWPDF=true
+                NEWPDF=1
                 URL_COMPLETO=$(echo "$link" | sed 's|^/|https://www.regione.lazio.it/|')
                 echo "Nuovo file rilevato: $NOME_FILE. Scarico..."
                 curl -sL "$URL_COMPLETO" -o "allegati_nuovi/$NOME_FILE"
+                
+                  wget -O "allegati_nuovi/$NOME_FILE" "https://tuosito.it/$link"
+                  # Converte il PDF in testo e cerca la stringa
+                  if pdftotext "allegati_nuovi/$NOME_FILE" - | grep -q "2021IT05SFPR006"; then
+                      NEWPDF=2
+                  else
+                      NEWPDF=1
+                  fi
                 
                 # Qui puoi inserire il controllo pdftotext se ti serve cercare la stringa
               else
@@ -51,8 +59,11 @@ jobs:
             git add bur_vecchio.html allegati_nuovi/
             git commit -m "Nuovo BUR e allegati PDF rilevati"
             git push
-            if ["$NEWPDF"=true]; then
-              echo "NUOVO DOCUMENTO PDF SCARICATI - STRONZO!"
+            if ["$NEWPDF"=1]; then
+              echo "NUOVO DOCUMENTO PDF SCARICATO SENZA STRINGA - MALEDIZIONE!"
+              exit 1
+            else
+              echo "STRINGA ASILI TROVATA - EVVIVA!"
               exit 1
             fi
           else
