@@ -1,0 +1,14 @@
+name: Test Mattutino
+
+on:
+  schedule:
+    - cron: '0 7 * * *' # Alle 08:00 italiane
+  workflow_dispatch:
+
+jobs:
+  notifica:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Report
+        run: |
+          echo "Controllo attivato. Riceverai il log di questa operazione via eemail da GitHub."
