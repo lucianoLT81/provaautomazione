@@ -22,18 +22,16 @@ jobs:
           set -x
           NEWPDF=0 #variabile di controllo per il rinvenimento di nuovi pdf od il rivenimento di chiavi specifiche nei nuovi pdf
           # Scarica la pagina e rimuove i tag dinamici/casuali
-
-
-
+          # Scarica il JSON usando i parametri necessari per il server della Regione
           curl -s "https://www.regione.lazio.it/api/bur/pubblicazioni?numero=&anno=&data_da=&data_a=" \
-            -H 'Accept: application/json, text/plain, */*' \
-            -H 'Referer: https://www.regione.lazio.it/bur' \
-            -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' \
-            --compressed > bur_nuovo.json
-  
+               -H "Referer: https://www.regione.lazio.it/bur" \
+               -H "Accept: application/json" > bur_nuovo.json
+
+          # Confronta il nuovo JSON con quello precedente
           if ! diff -q bur_nuovo.json bur_vecchio.json; then
             mkdir -p allegati_nuovi
             
+            # Estrae i link corretti dalla struttura 'risultato' del JSON
             jq -r '.risultato[].allegati[].link' bur_nuovo.json | while read -r link; do
               NOME_FILE=$(basename "$link")
               URL_COMPLETO="https://www.regione.lazio.it$link"
