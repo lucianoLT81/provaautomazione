@@ -22,40 +22,32 @@ jobs:
           set -x
           NEWPDF=0 #variabile di controllo per il rinvenimento di nuovi pdf od il rivenimento di chiavi specifiche nei nuovi pdf
           # Scarica la pagina e rimuove i tag dinamici/casuali
-          curl -s https://www.regione.lazio.it/bur | sed -E 's/(\?|&)(v|t|s|id)=[0-9a-zA-Z]*//g' > bur_nuovo.html
+
+
+
+          curl -s "https://www.regione.lazio.it/api/bur/pubblicazioni?numero=&anno=&data_da=&data_a=" -H "Referer: https://www.regione.lazio.it/bur" > bur_nuovo.json
           
-          # Confronta solo il testo (ignora differenze di spazi o metadati)
-            # Se il file è cambiato, cerca i link PDF e scaricali
-          if ! diff -q -w bur_nuovo.html bur_vecchio.html; then
-            
-            # Crea una cartella per i nuovi allegati
+          if ! diff -q bur_nuovo.json bur_vecchio.json; then
             mkdir -p allegati_nuovi
             
-            # Estrae i link PDF e li scarica uno per uno
-            grep -oP 'href="\K[^"]+\.pdf' bur_nuovo.html | while read -r link ; do
-             NOME_FILE=$(basename "$link")
-              # Controlla se il file esiste già nella cartella degli allegati
+            jq -r '.[].allegati[].link' bur_nuovo.json | while read -r link; do
+              NOME_FILE=$(basename "$link")
+              URL_COMPLETO="https://www.regione.lazio.it$link"
+              
               if [ ! -f "allegati_nuovi/$NOME_FILE" ]; then
-                NEWPDF=1
-                URL_COMPLETO=$(echo "$link" | sed 's|^/|https://www.regione.lazio.it/|')
-                echo "Nuovo file rilevato: $NOME_FILE. Scarico..."
                 curl -sL "$URL_COMPLETO" -o "allegati_nuovi/$NOME_FILE"
                 
-                  wget -O "allegati_nuovi/$NOME_FILE" "https://tuosito.it/$link"
-                  # Converte il PDF in testo e cerca la stringa
-                  if pdftotext "allegati_nuovi/$NOME_FILE" - | grep -q "2021IT05SFPR006"; then
-                      NEWPDF=2
-                  else
-                      NEWPDF=1
-                  fi
-                
-                # Qui puoi inserire il controllo pdftotext se ti serve cercare la stringa
-              else
-                echo "$NOME_FILE già presente, salto."
+                if pdftotext "allegati_nuovi/$NOME_FILE" - | grep -q "2021IT05SFPR006"; then
+                    NEWPDF=2
+                elif [ "$NEWPDF" -ne 2 ]; then
+                    NEWPDF=1
+                fi
               fi
             done
 
-            mv bur_nuovo.html bur_vecchio.html
+            mv bur_nuovo.json bur_vecchio.json
+            git add bur_vecchio.json
+
             git config user.name "GitHub Action"
             git config user.email "action@github.com"
             git add bur_vecchio.html allegati_nuovi/
