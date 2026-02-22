@@ -4,6 +4,9 @@ on:
     - cron: '0 * * * *' # Ogni ora
   workflow_dispatch:
 
+- name: Lint Bash script
+        uses: ludeeus/action-shellcheck@master
+        
 jobs:
   monitor:
     runs-on: ubuntu-latest
