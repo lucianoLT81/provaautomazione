@@ -18,16 +18,6 @@ jobs:
           # Scarica la pagina e rimuove i tag dinamici/casuali
           curl -s https://www.regione.lazio.it/bur | sed -E 's/(\?|&)(v|t|s|id)=[0-9a-zA-Z]*//g' > bur_nuovo.html
           
-          if [ ! -f bur_vecchio.html ]; then
-            mv bur_nuovo.html bur_vecchio.html
-            git config user.name "GitHub Action"
-            git config user.email "action@github.com"
-            git add bur_vecchio.html
-            git commit -m "Inizializzazione"
-            git push
-            exit 0
-          fi
-
           # Confronta solo il testo (ignora differenze di spazi o metadati)
           if ! diff -q -w bur_nuovo.html bur_vecchio.html; then
             mv bur_nuovo.html bur_vecchio.html
@@ -36,7 +26,27 @@ jobs:
             git add bur_vecchio.html
             git commit -m "Nuovo BUR rilevato"
             git push
-            echo "NUOVO DOCUMENTO TROVATO - STRONZO!"
+            # Se il file è cambiato, cerca i link PDF e scaricali
+          if ! diff -q -w bur_nuovo.html bur_vecchio.html; then
+            
+            # Crea una cartella per i nuovi allegati
+            mkdir -p allegati_nuovi
+            
+            # Estrae i link PDF e li scarica uno per uno
+            grep -oP 'href="\K[^"]+\.pdf' bur_nuovo.html | while read -r link ; do
+              # Ricompone l'URL se è relativo
+              URL_COMPLETO=$(echo "$link" | sed 's|^/|https://www.regione.lazio.it/|')
+              echo "Scarico: $URL_COMPLETO"
+              curl -sL "$URL_COMPLETO" -o "allegati_nuovi/$(basename "$link")"
+            done
+
+            mv bur_nuovo.html bur_vecchio.html
+            git config user.name "GitHub Action"
+            git config user.email "action@github.com"
+            git add bur_vecchio.html allegati_nuovi/
+            git commit -m "Nuovo BUR e allegati PDF rilevati"
+            git push
+            echo "NUOVO DOCUMENTO E PDF SCARICATI - STRONZO!"
             exit 1
           else
             echo "Nulla di nuovo."
