@@ -18,6 +18,7 @@ jobs:
       - name: Verifica BUR
         run: |
           set -x
+          NEWPDF=false #variabile di controllo per il rinvenimento di nuovi pdf od il rivenimento di chiavi specifiche nei nuovi pdf
           # Scarica la pagina e rimuove i tag dinamici/casuali
           curl -s https://www.regione.lazio.it/bur | sed -E 's/(\?|&)(v|t|s|id)=[0-9a-zA-Z]*//g' > bur_nuovo.html
           
@@ -35,6 +36,7 @@ jobs:
               if [ ! -f "allegati_nuovi/$NOME_FILE" ]; then
                 URL_COMPLETO=$(echo "$link" | sed 's|^/|https://www.regione.lazio.it/|')
                 echo "Nuovo file rilevato: $NOME_FILE. Scarico..."
+                NEWPDF=true
                 curl -sL "$URL_COMPLETO" -o "allegati_nuovi/$NOME_FILE"
                 
                 # Qui puoi inserire il controllo pdftotext se ti serve cercare la stringa
@@ -49,8 +51,10 @@ jobs:
             git add bur_vecchio.html allegati_nuovi/
             git commit -m "Nuovo BUR e allegati PDF rilevati"
             git push
-            echo "NUOVO DOCUMENTO E PDF SCARICATI - STRONZO!"
-            exit 1
+            if [NEWPDF=true]
+              echo "NUOVO DOCUMENTO E PDF SCARICATI - STRONZO!"
+              exit 1
+            fi
           else
             echo "Nulla di nuovo."
             exit 0
