@@ -2,7 +2,7 @@ name: Test Mattutino
 
 on:
   schedule:
-    - cron: '0 7 * * *' # Alle 08:00 italiane
+    - cron: '32 1 * * *' # Alle 08:00 italiane
   workflow_dispatch:
 
 jobs:
