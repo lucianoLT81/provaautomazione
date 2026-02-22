@@ -1,4 +1,5 @@
 name: Controllo BUR Lazio
+- name: Controllo Sintassi Bash
         uses: ludeeus/action-shellcheck@master
 on:
   schedule:
