@@ -52,7 +52,7 @@ jobs:
             git commit -m "Nuovo BUR e allegati PDF rilevati"
             git push
             if [NEWPDF=true]
-              echo "NUOVO DOCUMENTO E PDF SCARICATI - STRONZO!"
+              echo "NUOVO DOCUMENTO PDF SCARICATI - STRONZO!"
               exit 1
             fi
           else
