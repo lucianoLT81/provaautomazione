@@ -14,24 +14,22 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Verifica BUR
-        run: |
-          # Scarica la pagina del BUR
-          curl -s https://www.regione.lazio.it/bur -o bur_nuovo.html
+       run: |
+          # Scarica la pagina e rimuove i tag dinamici/casuali
+          curl -s https://www.regione.lazio.it/bur | sed -E 's/(\?|&)(v|t|s|id)=[0-9a-zA-Z]*//g' > bur_nuovo.html
           
-          # Se non esiste un controllo precedente, lo crea e finisce qui
           if [ ! -f bur_vecchio.html ]; then
             mv bur_nuovo.html bur_vecchio.html
             git config user.name "GitHub Action"
             git config user.email "action@github.com"
             git add bur_vecchio.html
-            git commit -m "Inizializzazione monitor BUR"
+            git commit -m "Inizializzazione"
             git push
-            echo "Primo avvio: archivio creato."
             exit 0
           fi
 
-          # Confronta i file. Se sono DIVERSI, entra nell'if
-          if ! cmp -s bur_nuovo.html bur_vecchio.html; then
+          # Confronta solo il testo (ignora differenze di spazi o metadati)
+          if ! diff -q -w bur_nuovo.html bur_vecchio.html; then
             mv bur_nuovo.html bur_vecchio.html
             git config user.name "GitHub Action"
             git config user.email "action@github.com"
@@ -39,7 +37,7 @@ jobs:
             git commit -m "Nuovo BUR rilevato"
             git push
             echo "NUOVO DOCUMENTO TROVATO - STRONZO!"
-            exit 1 # <--- QUESTO GENERA LA X ROSSA E L'EMAIL
+            exit 1
           else
             echo "Nulla di nuovo."
             exit 0
