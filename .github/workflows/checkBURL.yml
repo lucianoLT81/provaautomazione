@@ -1,11 +1,9 @@
 name: Controllo BUR Lazio
+        uses: ludeeus/action-shellcheck@master
 on:
   schedule:
     - cron: '0 * * * *' # Ogni ora
   workflow_dispatch:
-
-- name: Lint Bash script
-        uses: ludeeus/action-shellcheck@master
         
 jobs:
   monitor:
