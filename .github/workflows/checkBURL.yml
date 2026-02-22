@@ -18,6 +18,7 @@ jobs:
 
       - name: Verifica BUR
         run: |
+          set -x
           # Scarica la pagina e rimuove i tag dinamici/casuali
           curl -s https://www.regione.lazio.it/bur | sed -E 's/(\?|&)(v|t|s|id)=[0-9a-zA-Z]*//g' > bur_nuovo.html
           
