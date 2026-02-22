@@ -1,6 +1,5 @@
 name: Controllo BUR Lazio
-- name: Controllo Sintassi Bash
-        uses: ludeeus/action-shellcheck@master
+
 on:
   schedule:
     - cron: '0 * * * *' # Ogni ora
@@ -9,6 +8,9 @@ on:
 jobs:
   monitor:
     runs-on: ubuntu-latest
+    steps:
+        - name: Controllo Sintassi Bash
+          uses: ludeeus/action-shellcheck@master
     permissions:
       contents: write # Serve per salvare lo stato della pagina
     steps:
