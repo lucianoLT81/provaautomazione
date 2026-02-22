@@ -44,3 +44,5 @@ jobs:
             echo "Nulla di nuovo."
             exit 0
           fi
+
+#parole da cercare con la prossima versione: "CCI 2021IT05SFPR006"
