@@ -21,24 +21,23 @@ jobs:
         run: |
           set -x
           NEWPDF=0 #variabile di controllo per il rinvenimento di nuovi pdf od il rivenimento di chiavi specifiche nei nuovi pdf
-          # Scarica la pagina e rimuove i tag dinamici/casuali
-          # Scarica il JSON usando i parametri necessari per il server della Regione
-          curl -s "https://www.regione.lazio.it/api/bur/pubblicazioni?numero=&anno=&data_da=&data_a=" \
-               -H "Referer: https://www.regione.lazio.it/bur" \
-               -H "Accept: application/json" > bur_nuovo.json
 
-          # Confronta il nuovo JSON con quello precedente
-          if ! diff -q bur_nuovo.json bur_vecchio.json; then
+          # Scarica la nuova pagina HTML
+          curl -s "https://sicer.regione.lazio.it/PublicBur/burlazio/FrontEnd" > pagina_nuova.html
+
+          # Confronta la nuova pagina con quella precedente
+          if ! diff -q pagina_nuova.html pagina_vecchia.html; then
             mkdir -p allegati_nuovi
-            
-            # Estrae i link corretti dalla struttura 'risultato' del JSON
-            jq -r '.risultato[].allegati[].link' bur_nuovo.json | while read -r link; do
+
+            # Estrae i link ai PDF dalla pagina HTML
+            grep -oP 'href="\K[^"]+\.pdf' pagina_nuova.html | while read -r link; do
+              # I link sono relativi, quindi li completo
+              URL_COMPLETO="https://sicer.regione.lazio.it$link"
               NOME_FILE=$(basename "$link")
-              URL_COMPLETO="https://www.regione.lazio.it$link"
-              
+
               if [ ! -f "allegati_nuovi/$NOME_FILE" ]; then
                 curl -sL "$URL_COMPLETO" -o "allegati_nuovi/$NOME_FILE"
-                
+
                 if pdftotext "allegati_nuovi/$NOME_FILE" - | grep -q "2021IT05SFPR006"; then
                     NEWPDF=2
                 elif [ "$NEWPDF" -ne 2 ]; then
@@ -47,14 +46,15 @@ jobs:
               fi
             done
 
-            mv bur_nuovo.json bur_vecchio.json
-            git add bur_vecchio.json
+            mv pagina_nuova.html pagina_vecchia.html
+            git add pagina_vecchia.html
 
             git config user.name "GitHub Action"
             git config user.email "action@github.com"
-            git add bur_vecchio.json allegati_nuovi/
+            git add pagina_vecchia.html allegati_nuovi/
             git commit -m "Nuova pagina BUR rilevata"
             git push
+
             if [ "$NEWPDF" = "1" ]; then
               echo "NUOVO DOCUMENTO PDF SCARICATO SENZA STRINGA - MALEDIZIONE!"
               exit 1
