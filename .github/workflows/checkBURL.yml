@@ -15,130 +15,41 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y poppler-utils
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install Playwright
-        run: |
-          npm init -y
-          npm install playwright@latest
-          npx playwright install --with-deps
-
-      - name: Scarica pagina e PDF con Playwright
-        run: |
-          node << 'EOF'
-          const fs = require('fs');
-          const { chromium } = require('playwright');
-
-          (async () => {
-            const browser = await chromium.launch();
-            const context = await browser.newContext({
-              acceptDownloads: true
-            });
-            const page = await context.newPage();
-
-            // 1) Vai alla pagina UltimiEdiz
-            await page.goto('https://sicer.regione.lazio.it/PublicBur/burlazio/FrontEnd/UltimiEdiz', {
-              waitUntil: 'networkidle'
-            });
-
-            // 2) Salva l'HTML corrente come pagina_nuova.html
-            const html = await page.content();
-            fs.writeFileSync('pagina_nuova.html', html, 'utf8');
-
-            // 3) Crea cartella allegati_nuovi
-            if (!fs.existsSync('allegati_nuovi')) {
-              fs.mkdirSync('allegati_nuovi');
-            }
-
-            // 4) Trova tutti gli elementi che chiamano onGenericStreamRead('...pdf')
-            const links = await page.$$eval('*[onclick]', els =>
-              els
-                .map(el => el.getAttribute('onclick'))
-                .filter(v => v && v.includes('onGenericStreamRead('))
-                .map(v => {
-                  const m = v.match(/onGenericStreamRead\('([^']+\.pdf)'\)/);
-                  return m ? m[1] : null;
-                })
-                .filter(Boolean)
-            );
-
-            // 5) Per ogni "nome file", clicca il relativo elemento per scaricare il PDF
-            for (const name of links) {
-              // Trova l'elemento con quell'onclick
-              const locator = page.locator(`*[onclick="onGenericStreamRead('${name}')"]`).first();
-              if (!(await locator.count())) continue;
-
-              const downloadPromise = page.waitForEvent('download');
-              await locator.click();
-              const download = await downloadPromise;
-
-              const path = `allegati_nuovi/${name}`;
-              await download.saveAs(path);
-              console.log('Scaricato:', path);
-            }
-
-            await browser.close();
-          })().catch(e => {
-            console.error(e);
-            process.exit(1);
-          });
-          EOF
-
-      - name: Verifica BUR, analisi PDF, commit
+      - name: Scarica pagina BUR e estrai nomi PDF
         run: |
           set -x
-          NEWPDF=0
 
-          # Se non esiste ancora la vecchia pagina, creala vuota
-          if [ ! -f pagina_vecchia.html ]; then
-            touch pagina_vecchia.html
+          # Scarica la pagina
+          curl -s "https://sicer.regione.lazio.it/PublicBur/burlazio/FrontEnd/UltimiEdiz" > pagina_nuova.html
+
+          # Estrai i nomi dei PDF
+          grep -oP "onGenericStreamRead\('\K[^']+\.pdf" pagina_nuova.html | sort -u > pdf_nuovi.txt
+
+          # Se non esiste ancora il file vecchio, crealo vuoto
+          if [ ! -f pdf_vecchi.txt ]; then
+            touch pdf_vecchi.txt
           fi
 
-          # Confronta la nuova pagina con quella precedente
-          if ! diff -q pagina_nuova.html pagina_vecchia.html; then
+          # Confronta i due insiemi
+          NUOVI=$(comm -13 pdf_vecchi.txt pdf_nuovi.txt)
 
-            # Analizza tutti i PDF scaricati
-            if ls allegati_nuovi/*.pdf >/dev/null 2>&1; then
-              for f in allegati_nuovi/*.pdf; do
-                echo "Analizzo $f"
-                if pdftotext "$f" - | grep -q "2021IT05SFPR006"; then
-                  NEWPDF=2
-                elif [ "$NEWPDF" -ne 2 ]; then
-                  NEWPDF=1
-                fi
-              done
-            fi
+          echo "PDF nuovi trovati:"
+          echo "$NUOVI"
 
-            mv pagina_nuova.html pagina_vecchia.html
+          # Aggiorna il file vecchio
+          cp pdf_nuovi.txt pdf_vecchi.txt
 
-            if [ "$NEWPDF" -ne 0 ]; then
-              git config user.name "GitHub Action"
-              git config user.email "action@github.com"
-              git add pagina_vecchia.html allegati_nuovi/ || true
-              git commit -m "Nuova pagina BUR rilevata" || true
-              git push || true
-            fi
-
-            if [ "$NEWPDF" = "1" ]; then
-              echo "NUOVO DOCUMENTO PDF SCARICATO SENZA STRINGA"
-              exit 1
-            elif [ "$NEWPDF" = "2" ]; then
-              echo "STRINGA ASILI TROVATA - EVVIVA!"
-              exit 1
-            else
-              echo "Pagina cambiata ma nessun PDF nuovo rilevante."
-              exit 0
-            fi
+          # Se ci sono PDF nuovi → errore (alert)
+          if [ -n "$NUOVI" ]; then
+            echo "Trovati nuovi PDF!"
+            git config user.name "GitHub Action"
+            git config user.email "action@github.com"
+            git add pdf_vecchi.txt pagina_nuova.html
+            git commit -m "Nuovi PDF trovati"
+            git push
+            exit 1
           else
-            echo "Nulla di nuovo."
+            echo "Nessun nuovo PDF."
             exit 0
           fi
 #parole da cercare con la prossima versione: "CCI 2021IT05SFPR006"
