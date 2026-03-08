@@ -2,7 +2,7 @@ name: Controllo BUR Lazio
 
 on:
   schedule:
-    - cron: '0 * * * *'
+    - cron: '0 * * * *'   # ogni ora
   workflow_dispatch:
 
 jobs:
@@ -15,74 +15,127 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: sudo apt-get install -y jq poppler-utils
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y poppler-utils
 
-      - name: Verifica BUR
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Playwright
+        run: |
+          npm init -y
+          npm install playwright@latest
+
+      - name: Scarica pagina e PDF con Playwright
+        run: |
+          node << 'EOF'
+          const fs = require('fs');
+          const { chromium } = require('playwright');
+
+          (async () => {
+            const browser = await chromium.launch();
+            const context = await browser.newContext({
+              acceptDownloads: true
+            });
+            const page = await context.newPage();
+
+            // 1) Vai alla pagina UltimiEdiz
+            await page.goto('https://sicer.regione.lazio.it/PublicBur/burlazio/FrontEnd/UltimiEdiz', {
+              waitUntil: 'networkidle'
+            });
+
+            // 2) Salva l'HTML corrente come pagina_nuova.html
+            const html = await page.content();
+            fs.writeFileSync('pagina_nuova.html', html, 'utf8');
+
+            // 3) Crea cartella allegati_nuovi
+            if (!fs.existsSync('allegati_nuovi')) {
+              fs.mkdirSync('allegati_nuovi');
+            }
+
+            // 4) Trova tutti gli elementi che chiamano onGenericStreamRead('...pdf')
+            const links = await page.$$eval('*[onclick]', els =>
+              els
+                .map(el => el.getAttribute('onclick'))
+                .filter(v => v && v.includes('onGenericStreamRead('))
+                .map(v => {
+                  const m = v.match(/onGenericStreamRead\('([^']+\.pdf)'\)/);
+                  return m ? m[1] : null;
+                })
+                .filter(Boolean)
+            );
+
+            // 5) Per ogni "nome file", clicca il relativo elemento per scaricare il PDF
+            for (const name of links) {
+              // Trova l'elemento con quell'onclick
+              const locator = page.locator(`*[onclick="onGenericStreamRead('${name}')"]`).first();
+              if (!(await locator.count())) continue;
+
+              const downloadPromise = page.waitForEvent('download');
+              await locator.click();
+              const download = await downloadPromise;
+
+              const path = `allegati_nuovi/${name}`;
+              await download.saveAs(path);
+              console.log('Scaricato:', path);
+            }
+
+            await browser.close();
+          })().catch(e => {
+            console.error(e);
+            process.exit(1);
+          });
+          EOF
+
+      - name: Verifica BUR, analisi PDF, commit
         run: |
           set -x
           NEWPDF=0
 
-          # 1️⃣ Scarica pagina e crea sessione (cookie)
-          curl -s -c cookies.txt \
-            -A "Mozilla/5.0" \
-            "https://sicer.regione.lazio.it/PublicBur/burlazio/FrontEnd/UltimiEdiz" \
-            > pagina_nuova.html
+          # Se non esiste ancora la vecchia pagina, creala vuota
+          if [ ! -f pagina_vecchia.html ]; then
+            touch pagina_vecchia.html
+          fi
 
-          # 2️⃣ Confronta con pagina precedente
+          # Confronta la nuova pagina con quella precedente
           if ! diff -q pagina_nuova.html pagina_vecchia.html; then
-            mkdir -p allegati_nuovi
 
-            # 3️⃣ Estrai i nomi dei PDF
-            grep -oP "onGenericStreamRead\('\K[^']+\.pdf" pagina_nuova.html > lista_pdf.txt
-
-            # 4️⃣ Estrai il TICKET dalla pagina
-            TICKET=$(grep -oP 'name="TICKET" value="\K[^"]+' pagina_nuova.html)
-
-            # 5️⃣ Scarica ogni PDF con sessione + TICKET
-            while read -r link; do
-              [ -z "$link" ] && continue
-
-              NOME_FILE=$(basename "$link")
-
-              if [ ! -f "allegati_nuovi/$NOME_FILE" ]; then
-                curl -sL -b cookies.txt -c cookies.txt \
-                  -A "Mozilla/5.0" \
-                  -e "https://sicer.regione.lazio.it/PublicBur/burlazio/FrontEnd/UltimiEdiz" \
-                  -X POST \
-                  -d "BL_PAR_GENERIC_FILE_0=$link" \
-                  -d "TICKET=$TICKET" \
-                  "https://sicer.regione.lazio.it/PublicBur/burlazio/DynRes/GENERIC_FILE.4" \
-                  -o "allegati_nuovi/$NOME_FILE"
-
-                # 6️⃣ Analisi PDF
-                if pdftotext "allegati_nuovi/$NOME_FILE" - | grep -q "2021IT05SFPR006"; then
+            # Analizza tutti i PDF scaricati
+            if ls allegati_nuovi/*.pdf >/dev/null 2>&1; then
+              for f in allegati_nuovi/*.pdf; do
+                echo "Analizzo $f"
+                if pdftotext "$f" - | grep -q "2021IT05SFPR006"; then
                   NEWPDF=2
                 elif [ "$NEWPDF" -ne 2 ]; then
                   NEWPDF=1
                 fi
-              fi
-            done < lista_pdf.txt
+              done
+            fi
 
             mv pagina_nuova.html pagina_vecchia.html
-            git add pagina_vecchia.html
 
             if [ "$NEWPDF" -ne 0 ]; then
               git config user.name "GitHub Action"
               git config user.email "action@github.com"
-              git add pagina_vecchia.html allegati_nuovi/
-              git commit -m "Nuova pagina BUR rilevata"
-              git push
+              git add pagina_vecchia.html allegati_nuovi/ || true
+              git commit -m "Nuova pagina BUR rilevata" || true
+              git push || true
             fi
 
             if [ "$NEWPDF" = "1" ]; then
               echo "NUOVO DOCUMENTO PDF SCARICATO SENZA STRINGA"
               exit 1
             elif [ "$NEWPDF" = "2" ]; then
-              echo "STRINGA TROVATA - EVVIVA!"
+              echo "STRINGA ASILI TROVATA - EVVIVA!"
               exit 1
+            else
+              echo "Pagina cambiata ma nessun PDF nuovo rilevante."
+              exit 0
             fi
-
           else
             echo "Nulla di nuovo."
             exit 0
