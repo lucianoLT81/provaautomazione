@@ -1,0 +1,870 @@
+
+
+
+
+
+
+
+
+
+ 
+
+
+ 
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Bur</title>
+		<link href="/PublicBur/burlazio/burfiles/css/burised.css" rel="stylesheet" type="text/css" />
+		<link href="/PublicBur/burlazio/ui/overcast/jquery-ui-1.8.18.custom.css" rel="stylesheet" type="text/css" />
+		<link href="/PublicBur/burlazio/tables/css/jquery.dataTables.css" rel="stylesheet" type="text/css" />
+	<style type="text/css">
+		body {
+			padding: 0;
+			margin: 0; 
+			text-align: center;		
+			font-family: Arial, Helvetica, sans-serif;
+			font-size: 75%;
+		} 
+		.divrow {
+			padding: 5px;
+			width: 100%;
+			clear: both;
+		} 
+		
+		.leftlabel {
+			width: 28%;
+			padding-top: 8px;
+			float: left;
+			/*color: #C33;*/
+		}
+
+		.leftdiv{
+			float: left;
+		}
+				
+		.divrowleft75 {
+			margin-top: 50px;
+			margin-bottom: 20px;
+			width: 75%;
+			float: left;
+	    font-size: 120%;
+	    font-style:italic;
+	    color: #4E6E93;
+			
+		}
+		.divrowright25 {
+		  margin-top: 50px;
+		  margin-bottom: 20px;
+			width: 25%;
+			float: right;
+		}
+		
+	  .turnback {
+	    color: #C33;
+	    font-weight: normal;
+	    font-size: 120%;
+		}
+		
+	    .richtablediv{
+			border: 1px solid #C2C2C2;
+			padding: 10px 10px 10px 10px;
+			border-radius: 10px;
+			-moz-border-radius: 10px;		
+			clear: both;
+			background-color: #f5f5f5; 			  
+	    }
+	    
+		.quarterrow {
+			width: 25%;
+			float: left;
+		}
+	
+		.emptydivrow {
+			height: 25px;
+			width: 100%;
+			clear: both;
+		} 
+
+		.msgdiv{
+			float: left;
+			color: #C33;
+		}
+		.errormsg{
+			margin: 100px;
+			color: #c33;
+			font-size: 100%;
+		}
+
+		.delfile{
+			color: #C33;
+			font-weight: normal;
+		}	
+			
+		.leftmsg{
+			color: #c33;
+			font-size: 100%;
+		}
+		
+    #gudacontent{
+      display: none;
+      background-color: #fafafa;
+      
+			border: 1px solid #C2C2C2;
+			margin: 20px auto;
+			padding: 10px 10px 10px 10px;
+			border-radius: 10px;
+			-moz-border-radius: 10px;		
+			color: #4E6E93;	
+    }
+
+		.guida{
+			float: right;	
+			font-weight: normal;
+			font-style: italic;	
+			color: #c33;
+		}		
+		
+		.messaggio{
+			color: #c33;
+			font-size: 100%;
+			/*font-weight: bold;*/
+		}
+		.info{
+		  font-style: italic;
+		}
+		
+		.leftlabelchk {
+			width: 28%;
+			padding-top: 8px;
+			float: left;
+			/*color: #C33;*/
+		}
+		
+		.rightdiv{
+			float: right;
+		}		
+	
+		#ricerca{
+			background: -webkit-gradient(linear, left top, left bottom, from(white), to(#EAEAEA));
+			background: -moz-linear-gradient(top, white, #EAEAEA);
+			filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#eaeaea');
+			border: 1px solid #C2C2C2;
+			padding: 10px 20px 30px 20px;
+			margin: 30px auto;
+			border-radius: 10px;
+			-moz-border-radius: 10px;		
+			color: #4E6E93;	  
+			}
+					
+		.linkarchivio{
+		  font-weight: normal;
+		  text-decoration: underline;
+		  /*font-style: italic;*/
+      /*color: #C33*/
+		}
+						
+		#searchimg{
+			background-color: #c33;
+			cursor: pointer;			
+		}
+
+		#accredit{
+			background: -webkit-gradient(linear, left top, left bottom, from(white), to(#EAEAEA));
+			background: -moz-linear-gradient(top, white, #EAEAEA);
+			filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#eaeaea');
+			border: 1px solid #C2C2C2;
+			margin: 20px auto;
+			padding: 20px 10px 50px 10px;
+			border-radius: 10px;
+			-moz-border-radius: 10px;		
+			color: #4E6E93;	  
+			}
+			
+			.star{
+			  color: red;
+			}
+			
+			#searchimg{
+			background-color: #c33;
+			cursor: pointer;			
+		}
+			
+		#listaatti{
+			clear: both;
+			overflow: auto;
+	
+			background: -webkit-gradient(linear, left top, left bottom, from(#EAEAEA), to(white));
+			background: -moz-linear-gradient(top, #EAEAEA, white);
+			filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#eaeaea', endColorstr='#ffffff');
+	
+			/*background-color: #ffffff;*/
+			text-align: center;
+			padding: 30px;
+			border: 1px solid #4E6E93;
+			border-radius: 10px;
+		}
+		.openfile{
+		  font-weight: normal;
+		}	
+
+		#attitable tr:hover{
+			color: #c33;
+			cursor: pointer;
+		}
+	
+		#result{
+			clear: both;
+			overflow: auto;
+			/*
+			background: -webkit-gradient(linear, left top, left bottom, from(white), to(#EAEAEA));
+			background: -moz-linear-gradient(top, white, #EAEAEA);
+			filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#eaeaea');
+			*/				
+	
+			background: -webkit-gradient(linear, left top, left bottom, from(#F9F8F8), to(#EAEAEA));
+			background: -moz-linear-gradient(top, #F9F8F8, #EAEAEA);
+			filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#F9F8F8', endColorstr='#eaeaea');
+	
+			border: 1px solid #C2C2C2;
+			padding: 10px 20px 30px 20px;
+			margin: 30px auto;
+			border-radius: 10px;
+			-moz-border-radius: 10px;		
+			color: #4E6E93;	
+		}	
+	
+		.resulttable{
+			width: 99%;
+			border: 1px solid #CCC;
+			border-spacing: 0;
+			border-collapse: collapse;
+			/*border: solid #CCC 1px;*/
+		}
+
+		.openfile:hover, .oggettocls:hover{
+			font-weight: bold;
+			color: #c33;
+		}	
+			
+		.oggettocls{
+			font-weight: normal;
+			font-style:italic;
+		}
+	
+		.resulttr{
+			height: 28px;
+			cursor: pointer;
+		}
+		.findresulttr{
+			/*height: 28px;*/
+			cursor: pointer;
+		}	
+		.resulttable th, .resulttable td{
+			/*border: 1px solid #CCC;*/
+			text-align: left;
+		}			
+	
+	  .noresults{
+	    margin: 50px;
+	    font-style:italic;
+	    color: #4E6E93;
+	  }
+	 
+	 	.noresults1{
+	    font-style:italic;
+	    color: #4E6E93;
+	  }
+
+	 	.normalcol{
+	    color: #4E6E93;
+	  }
+	  	   
+		.field_edit_mandatory  { background-color: #FFFFC0;}	
+    
+    #terminal label.error { color: red; }		
+
+		.hiddendiv{
+			display: none;
+		}
+    
+    #findcomnas, #findcomres, #findcomente{
+			clear: both;
+			margin: 30px 10px 20px 10px;
+			border: 1px solid #C2C2C2;
+			padding: 10px 10px 10px 10px;
+			border-radius: 10px;
+			-moz-border-radius: 10px;			
+    }
+    
+    .generictbldiv{
+      padding-bottom: 30px;
+    }
+    
+		.btn {
+			width: auto;
+			padding: 6px 15px;
+			background: #617798;
+			border: 0;
+			font-size: 14px;
+			color: white;
+			-moz-border-radius: 5px;
+			-webkit-border-radius: 5px;
+			cursor: pointer;
+			font-weight: normal;
+		}		
+
+		.btnno {
+			width: auto;
+			padding: 6px 15px;
+			background: #A3B3CC;
+			border: 0;
+			font-size: 14px;
+			color: white;
+			-moz-border-radius: 5px;
+			-webkit-border-radius: 5px;
+		}
+			
+		.hiddenable{
+			height: 50px;
+			background-color: #000000;
+			clear: both;
+		}
+
+	.ui-autocomplete {
+		max-height: 150px;
+		overflow-y: auto;
+		/* prevent horizontal scrollbar */
+		overflow-x: hidden;
+		/* add padding to account for vertical scrollbar */
+		padding-right: 20px;
+		text-align: left;
+	}
+	/* IE 6 doesn't support max-height
+	 * we use height instead, but this forces the menu to always be this tall
+	 */
+	* html .ui-autocomplete {
+		height: 150px;
+	}
+		
+	</style>
+
+	<script type="text/javascript" src="/PublicBur/burlazio/ui/jquery-1.7.1.min.js" ></script>
+	<script type="text/javascript" src="/PublicBur/burlazio/ui/jquery-ui-1.8.18.custom.min.js"></script>
+	<script type="text/javascript" src="/PublicBur/burlazio/ui/jquery-ui-i18n.min.js"></script>
+	<script type="text/javascript" src="/PublicBur/burlazio/ui/jquery.validate.min.js"></script>
+	<script type="text/javascript" src="/PublicBur/burlazio/tables/js/jquery.dataTables.js"></script>
+	<script type="text/javascript">
+	
+		$(document).ready(function(){
+	
+			$(function() {
+				$("input[name='BL_PAR_DATA_ATTO_0']").datepicker($.datepicker.regional['it']);
+				$("input[name='BL_PAR_DATA_DA_EDIZ_0']").datepicker($.datepicker.regional['it']);
+				$("input[name='BL_PAR_DATA_A_EDIZ_0']").datepicker($.datepicker.regional['it']);
+				$("input[name='BL_PAR_BRA_DTA_NAS_0']").datepicker($.datepicker.regional['it']);
+			});
+	
+			$('#resulttbl').dataTable({
+				"oLanguage": {
+					"sProcessing": "Attendere prego...",
+					"sLengthMenu": "_MENU_ Righe per pagina",
+					"sZeroRecords": "Nessun riultato trovato.",
+					"sInfo": "Visualizzate da _START_ a _END_ di _TOTAL_ righe",
+					"sInfoEmpty": "Da 0 a 0 di 0 Righe",
+					"sInfoFiltered": "(filtrate su _MAX_  righe)",
+					"sInfoPostFix": "",
+					"sSearch": "Filtra",
+					"sUrl": "",
+					"oPaginate": {
+						"sFirst":    "Prima",
+						"sPrevious": "Indietro",
+						"sNext":     "Avanti",
+						"sLast":     "Ultima"
+					}
+				},
+				"aaSorting": [],
+				"aoColumns": [
+				 	         {"bSortable": true},
+				 	         {"iDataSort": 2},
+				 	         {"bVisible": false},
+				 	         {"bVisible": true},
+				 	         {"bVisible": true},
+				 	         {"bVisible": true}
+				          ]
+			});
+	
+			$('#resultatti').dataTable({
+				"oLanguage": {
+					"sProcessing": "Attendere prego...",
+					"sLengthMenu": "_MENU_ Righe per pagina",
+					"sZeroRecords": "Nessun riultato trovato.",
+					"sInfo": "Visualizzate da _START_ a _END_ di _TOTAL_ righe",
+					"sInfoEmpty": "Da 0 a 0 di 0 Righe",
+					"sInfoFiltered": "(filtrate su _MAX_  righe)",
+					"sInfoPostFix": "",
+					"sSearch": "Filtra",
+					"sUrl": "",
+					"oPaginate": {
+						"sFirst":    "Prima",
+						"sPrevious": "Indietro",
+						"sNext":     "Avanti",
+						"sLast":     "Ultima"
+					}
+				},
+				//"iDisplayLength": 25,
+				"aaSorting": [],
+				"sScrollX": "100%",
+				"sScrollXInner": "100%",
+				"bScrollCollapse": true,
+				"aoColumns": [
+	         {"bSortable": true},
+	         {"iDataSort": 2},
+	         {"bVisible": false},
+	         {"iDataSort": 4},
+	         {"bVisible": false},
+	         {"bVisible": true},
+	         {"bVisible": true},
+	         {"bVisible": true},
+	         {"iDataSort": 9},
+	         {"bVisible": false}
+         ]
+			});
+	
+			$('#sommariotable').dataTable({
+				"oLanguage": {
+					"sProcessing": "Attendere prego...",
+					"sLengthMenu": "_MENU_ Righe per pagina",
+					"sZeroRecords": "Nessun riultato trovato.",
+					"sInfo": "Visualizzate da _START_ a _END_ di _TOTAL_ righe",
+					"sInfoEmpty": "Da 0 a 0 di 0 Righe",
+					"sInfoFiltered": "(filtrate su _MAX_  righe)",
+					"sInfoPostFix": "",
+					"sSearch": "Filtra",
+					"sUrl": "",
+					"oPaginate": {
+						"sFirst":    "Prima",
+						"sPrevious": "Indietro",
+						"sNext":     "Avanti",
+						"sLast":     "Ultima"
+					}
+				},
+				//"iDisplayLength": 25,
+				"aaSorting": [],
+				"sScrollX": "100%",
+				"sScrollXInner": "100%",
+				"bScrollCollapse": true,
+				"aoColumns": [
+	         {"bSortable": true},
+	         {"iDataSort": 2},
+	         {"bVisible": false},
+	         {"iDataSort": 4},
+	         {"bVisible": false},
+	         {"bVisible": true},
+	         {"bVisible": true},
+	         {"iDataSort": 8},
+	         {"bVisible": false}
+         ]
+			});
+			
+			var oAttiTable = $('#attitable').dataTable({
+				"oLanguage": {
+					"sProcessing": "Attendere prego...",
+					"sLengthMenu": "_MENU_ Righe per pagina",
+					"sZeroRecords": "Nessun riultato trovato.",
+					"sInfo": "Visualizzate da _START_ a _END_ di _TOTAL_ righe",
+					"sInfoEmpty": "Da 0 a 0 di 0 Righe",
+					"sInfoFiltered": "(filtrate su _MAX_  righe)",
+					"sInfoPostFix": "",
+					"sSearch": "Filtra",
+					"sUrl": "",
+					"oPaginate": {
+						"sFirst":    "Prima",
+						"sPrevious": "Indietro",
+						"sNext":     "Avanti",
+						"sLast":     "Ultima"
+					}
+				},
+				"iDisplayLength": 10
+			});
+
+			 $(".comuni").autocomplete({
+        width: 300,
+        max: 10,
+        delay: 200,
+        minLength: 2,
+        autoFocus: true,
+        cacheLength: 2,
+        scroll: true,
+        highlight: true,
+        source: function(request, response) {
+          $.ajax({
+            url: "/PublicBur/burlazio/DialogMgr",
+            async: false,
+            dataType: "json",
+            data: request,
+            success: function( data, textStatus, jqXHR) {
+              var items = data;
+              response(items);
+            },
+            error: function(jqXHR, textStatus, errorThrown){
+							console.log( textStatus);
+            }
+          });
+        }
+	    });
+			
+			$(".guida").click(function(event){
+				$("#gudacontent").toggle();
+			});
+			
+			$(".openfile").click(function(event){
+				//$("#errormsg").html("");
+				$("#errormsg").hide();
+			});
+	
+			$(".oggettocls").click(function(event){
+				//$("#errormsg").html("");
+				$("#errormsg").hide();
+			});
+	
+			$("#confbtn").click(function(event){
+				$("#terminal").validate();
+				if($("#terminal").valid()){
+					$("#checkcf").html("");
+					var boCheck = codfis(document.getElementById('BL_PAR_BRA_CF0_0'));
+					//var boCheck = true;
+					if(boCheck){
+					  onGenericBtnClick('CONFERMA');
+					}
+					else{
+						$("#checkcf").html("Codice fiscale errato!");
+					}
+			  }
+			});			
+			
+			$("#upldocbtn").click(function(event){
+				var oFileName = $("#BL_PAR_UPL_DOCUM_0").val();
+				if(oFileName){
+				  onGenericBtnClick('UPLOAD_DOC');
+				}
+				else{
+					alert("Selezionare un file.");
+				}
+			});
+			
+			$("#cleanbtn").click(function(event){
+				onGenericBtnClick('ANNULLA');
+			});
+			
+			$("#modifybtn").click(function(event){
+				onGenericBtnClick('MODIFICA');
+			});	
+			
+			$("#salvabtn").click(function(event){
+				$("#terminal").validate();
+				if($("#terminal").valid()){
+					var boCheck = codfis(document.getElementById('BL_PAR_BRA_CF_0'));
+					//var boCheck = true;
+					if(boCheck){
+					  onGenericBtnClick('SALVA');
+					}
+					else{
+						$("#checkcf").html("Codice fiscale errato!");
+					}					
+			  }
+			});	
+
+			$("#inviabtn").click(function(event){
+				$("#terminal").validate();
+				if($("#terminal").valid()){
+					onGenericBtnClick('INVIA');
+			  }
+			});
+
+			$("#modulo").click(function(event){
+		     var oForm  = document.getElementById('terminal');
+		     oForm.action =  "DynRes/READ_MODULO.4";
+		     oForm.submit();
+		     return false;
+			});
+			
+			jQuery.extend(jQuery.validator.messages, {
+				required: "Dato Obbligatorio."
+			});			
+
+      $('#BL_PAR_BRA_EMAIL_R_0').bind("copy paste", function(e) {
+          e.preventDefault();
+      });			
+
+		});    
+		
+		function onLoadEvent(){
+			try {
+				document.oncontextmenu = doNothing;
+				document.onkeypress = stopRKey; 
+			} 
+			catch (oEx) {}
+		}
+	
+		function onGenericBtnClick(sButtonName){
+			try {
+				if("SALVA" == sButtonName){
+					var oDocName = document.getElementById('BL_PAR_UPL_DOCUM_0');
+					if(oDocName){
+						var sValue = oDocName.value; 
+						if((sValue.length > 0) && !endsWith(sValue.toLowerCase(), 'pdf') && !endsWith(sValue.toLowerCase(), 'p7m')){
+							alert('I documenti da inserire devono essere nel formato Pdf o P7m.');
+							return false;
+						}
+				  }
+				}				
+				var oForm = document.getElementById('terminal');  
+				oForm.action =  "/PublicBur/burlazio/FrontEnd" ;
+				oForm.BL_ACTION.value = sButtonName;
+				oForm.submit();
+				return false;
+			} 
+			catch (oEx) {}
+		}
+	
+		function onGenericStreamRead(sFileName){
+			var oForm        = document.getElementById('terminal');
+			var oGenericFile = document.getElementById('BL_PAR_GENERIC_FILE_0');
+			oGenericFile.value = sFileName;
+			//oForm.action =  "DynRes/GENERIC_FILE.4";
+			oForm.action =  "/PublicBur/burlazio/DynRes/GENERIC_FILE.4";
+			oForm.submit();
+			return false;
+		}
+
+	   function onFileDelete(sFileName){
+	     if (confirm("Volete davvero cancellare il file: " + sFileName + "?")) {
+	       var oForm  = document.getElementById('terminal');
+	       var oGenericFile   = document.getElementById('BL_PAR_GENERIC_FILE_0');
+	       oGenericFile.value = sFileName;
+	   	   oForm.action =  "/PublicBur/burlazio/FrontEnd" ;
+	       oForm.BL_ACTION.value = "DELETE_FILE";
+	       oForm.submit();
+	     }
+	     return false;
+	   } 
+		   
+		function stopRKey(evt) {
+	      var evt = (evt) ? evt : ((event) ? event : null);
+	      var node = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null);
+	      if ((evt.keyCode == 13) && (node.type=="text")) {
+		    return false;
+		  }
+		}
+
+   function endsWith(str, suffix) {
+		 return str.indexOf(suffix, str.length - suffix.length) !== -1;
+	 }
+   
+		function codfis(campo){
+			cod=campo.value.toLowerCase();
+			check=true;
+			if (cod.length!=16){
+				check=false;
+			}  
+			return check;
+		}
+		
+    function doNothing() {
+			return false;
+		}
+		//document.onkeypress = stopRKey; 
+		
+	</script>
+  </head>
+
+  <body ONLOAD="onLoadEvent()" >
+   <div id="mainbody">
+	  <div id="header" class="clearfix">
+	   <div id="logo">
+	    <a href="http://www.regione.lazio.it/" title="torna alla home page"><img src="/PublicBur/burlazio/burfiles/img/testata_bur.jpg" alt="home page" border="0" /></a>
+     </div>
+    
+	  </div>
+	  <div id="hmenu">
+     <div id="path">
+       Sei in: 
+       <a href="http://www.regione.lazio.it/ " title="Regione Lazio">Home</a> \
+       <a href="http://www.regione.lazio.it/bur" title="Bollettino Ufficiale">Bollettino ufficiale</a> \ 
+       Ultimi Bollettini Pubblicati
+     </div>
+	  </div>	
+	
+    <div id="content" class="clearfix">
+	    <div id="leftside">
+		    	
+		    		<div class="menulabels">RICERCHE</div>
+		    		<ul class="menu_sinistra">
+						<li><a href="/PublicBur/burlazio/FrontEnd/RicercaEdiz">Ricerca edizione BUR</a></li>
+						<li>
+					 	<a href="/PublicBur/burlazio/FrontEnd/RicercaAtto" title="Ricerca Atto Puntuale">Ricerca atto puntuale</a>
+					 	<div class="normalcol">(Dal 1 luglio 2012)</div>
+          				</li>
+						<li><a href="/PublicBur/burlazio/FrontEnd/UltimiEdiz" title="Ultimi Bollettini Pubblicati">Ultimi bollettini pubblicati</a></li>
+		   			</ul>
+		   		
+		   	
+				<div class="menulabels">SERVIZI PER GLI INSERZIONISTI</div>
+		    <ul class="menu_sinistra">
+
+<!-- 					<li><a href="http://bur.ised.it">Accesso area riservata</a></li> -->
+
+					<li>Richiesta di Accreditamento</li><li>Richiesta pubblicazione</li><li>Consultazione proprie Pratiche</li>
+		   	</ul>
+		   	
+			  <div class="menulabels">ARGOMENTI</div>
+		    <ul class="menu_sinistra">
+					<li><a href="https://www.regione.lazio.it/bur/faq">FAQ - Domande frequenti</a></li>
+					<li><a href="https://www.regione.lazio.it/bur/guida-al-servizio">Guida al servizio</a></li>
+					<li><a href="https://www.regione.lazio.it/bur/normativa-manualistica">Normativa e manualistica</a></li>
+					<li><a href="https://www.regione.lazio.it/bur/redazione-recapiti">Redazione e recapiti</a></li>
+					<li><a href="https://www.regione.lazio.it/bur/assolvimento-imposta-bollo">Assolvimento imposta di bollo</a></li>
+		   	</ul>
+		   			   	
+	    </div>    
+	    <div id="rightside">
+	     <form target="_self" action="" accept-charset="UTF-8" method="POST" enctype="application/x-www-form-urlencoded" id="terminal" name="terminal" autocomplete="off" onsubmit="return false;">
+	           <div id="result">
+     <table class="resulttable" id="resulttbl" colspacing="0" colpadding="0">
+      <thead>
+      <tr class="resulttr">
+       <th>Nr.</th>
+       <th>Data</th>
+       <th>Data(AMG)</th>
+       <th>Edizione</th>
+       <th>Visualizza/Scarica file .pdf</th>
+       <th>Scarica File Firmato Digitalmente</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr class="resulttr">
+       <td>19</td>
+       <td>05/03/2026</td>
+       <td>2026/03/05</td>
+       <td>Ordinario</td>
+       <td>    <a href="#" ONCLICK="onGenericStreamRead('BUR-2026-19-0.pdf');"><span class="openfile" >BUR-2026-19-0.pdf</span></a></td>
+       <td>    <a href="#" ONCLICK="onGenericStreamRead('BUR-2026-19-0.fd.pdf');"><span class="openfile" >BUR-2026-19-0.fd.pdf</span></a></td>
+      </tr>
+      <tr class="resulttr">
+       <td>19</td>
+       <td>05/03/2026</td>
+       <td>2026/03/05</td>
+       <td>Supplemento 1</td>
+       <td>    <a href="#" ONCLICK="onGenericStreamRead('BUR-2026-19-1.pdf');"><span class="openfile" >BUR-2026-19-1.pdf</span></a></td>
+       <td>    <a href="#" ONCLICK="onGenericStreamRead('BUR-2026-19-1.fd.pdf');"><span class="openfile" >BUR-2026-19-1.fd.pdf</span></a></td>
+      </tr>
+      <tr class="resulttr">
+       <td>18</td>
+       <td>03/03/2026</td>
+       <td>2026/03/03</td>
+       <td>Ordinario</td>
+       <td>    <a href="#" ONCLICK="onGenericStreamRead('BUR-2026-18-0.pdf');"><span class="openfile" >BUR-2026-18-0.pdf</span></a></td>
+       <td>    <a href="#" ONCLICK="onGenericStreamRead('BUR-2026-18-0.fd.pdf');"><span class="openfile" >BUR-2026-18-0.fd.pdf</span></a></td>
+      </tr>
+      <tr class="resulttr">
+       <td>18</td>
+       <td>03/03/2026</td>
+       <td>2026/03/03</td>
+       <td>Supplemento 1</td>
+       <td>    <a href="#" ONCLICK="onGenericStreamRead('BUR-2026-18-1.pdf');"><span class="openfile" >BUR-2026-18-1.pdf</span></a></td>
+       <td>    <a href="#" ONCLICK="onGenericStreamRead('BUR-2026-18-1.fd.pdf');"><span class="openfile" >BUR-2026-18-1.fd.pdf</span></a></td>
+      </tr>
+      <tr class="resulttr">
+       <td>17</td>
+       <td>26/02/2026</td>
+       <td>2026/02/26</td>
+       <td>Ordinario</td>
+       <td>    <a href="#" ONCLICK="onGenericStreamRead('BUR-2026-17-0.pdf');"><span class="openfile" >BUR-2026-17-0.pdf</span></a></td>
+       <td>    <a href="#" ONCLICK="onGenericStreamRead('BUR-2026-17-0.fd.pdf');"><span class="openfile" >BUR-2026-17-0.fd.pdf</span></a></td>
+      </tr>
+      <tr class="resulttr">
+       <td>16</td>
+       <td>24/02/2026</td>
+       <td>2026/02/24</td>
+       <td>Ordinario</td>
+       <td>    <a href="#" ONCLICK="onGenericStreamRead('BUR-2026-16-0.pdf');"><span class="openfile" >BUR-2026-16-0.pdf</span></a></td>
+       <td>    <a href="#" ONCLICK="onGenericStreamRead('BUR-2026-16-0.fd.pdf');"><span class="openfile" >BUR-2026-16-0.fd.pdf</span></a></td>
+      </tr>
+      <tr class="resulttr">
+       <td>16</td>
+       <td>24/02/2026</td>
+       <td>2026/02/24</td>
+       <td>Supplemento 1</td>
+       <td>    <a href="#" ONCLICK="onGenericStreamRead('BUR-2026-16-1.pdf');"><span class="openfile" >BUR-2026-16-1.pdf</span></a></td>
+       <td>    <a href="#" ONCLICK="onGenericStreamRead('BUR-2026-16-1.fd.pdf');"><span class="openfile" >BUR-2026-16-1.fd.pdf</span></a></td>
+      </tr>
+      <tr class="resulttr">
+       <td>15</td>
+       <td>19/02/2026</td>
+       <td>2026/02/19</td>
+       <td>Ordinario</td>
+       <td>    <a href="#" ONCLICK="onGenericStreamRead('BUR-2026-15-0.pdf');"><span class="openfile" >BUR-2026-15-0.pdf</span></a></td>
+       <td>    <a href="#" ONCLICK="onGenericStreamRead('BUR-2026-15-0.fd.pdf');"><span class="openfile" >BUR-2026-15-0.fd.pdf</span></a></td>
+      </tr>
+      <tr class="resulttr">
+       <td>15</td>
+       <td>19/02/2026</td>
+       <td>2026/02/19</td>
+       <td>Supplemento 1</td>
+       <td>    <a href="#" ONCLICK="onGenericStreamRead('BUR-2026-15-1.pdf');"><span class="openfile" >BUR-2026-15-1.pdf</span></a></td>
+       <td>    <a href="#" ONCLICK="onGenericStreamRead('BUR-2026-15-1.fd.pdf');"><span class="openfile" >BUR-2026-15-1.fd.pdf</span></a></td>
+      </tr>
+      <tr class="resulttr">
+       <td>14</td>
+       <td>17/02/2026</td>
+       <td>2026/02/17</td>
+       <td>Ordinario</td>
+       <td>    <a href="#" ONCLICK="onGenericStreamRead('BUR-2026-14-0.pdf');"><span class="openfile" >BUR-2026-14-0.pdf</span></a></td>
+       <td>    <a href="#" ONCLICK="onGenericStreamRead('BUR-2026-14-0.fd.pdf');"><span class="openfile" >BUR-2026-14-0.fd.pdf</span></a></td>
+      </tr>
+      </tbody>
+      </table>
+      <INPUT TYPE="HIDDEN" NAME="BL_PAR_GENERIC_FILE_0" ID="BL_PAR_GENERIC_FILE_0" VALUE="">
+     </div>
+       <INPUT TYPE="HIDDEN" NAME="BL_ID" VALUE="ULTIEDIZ" /> 
+
+	      
+	      <INPUT TYPE="HIDDEN" NAME="ACTION" VALUE="BLFORW" />
+	      <INPUT TYPE="HIDDEN" NAME="BL_DIALOG_FIELDID" VALUE="" />
+	      <INPUT TYPE="HIDDEN" NAME="BL_DIALOG_BLFIELDID" VALUE="" />
+	      <INPUT TYPE="HIDDEN" NAME="BL_DIALOG_SEARCHNAMES" VALUE="" />
+	      <INPUT TYPE="HIDDEN" NAME="BL_DIALOG_SEARCHVALS" VALUE="" />
+	      <INPUT TYPE="HIDDEN" NAME="BL_DIALOG_BLOCK" VALUE="0" />
+	      <INPUT TYPE="HIDDEN" NAME="TICKET" VALUE="19ccae42f1a" />
+	      <INPUT TYPE="HIDDEN" NAME="BL_ACTION" VALUE="" />	      
+	     </form>
+	    </div>
+    </div>	
+
+		<div id="sepfooter">
+	  </div>
+		<div id="footer">
+		  &nbsp;
+	  </div>		
+	</div>
+	<div id="contatti">
+      &nbsp;&nbsp;&copy; 2012 Regione Lazio - Via R. Raimondi Garibaldi 7, 00145 Roma
+  </div>
+  </body>
+</html>
