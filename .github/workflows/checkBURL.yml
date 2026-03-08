@@ -43,7 +43,7 @@ jobs:
                     NEWPDF=1
                 fi
               fi
-            done < <(grep -oP 'href="\K[^"]+\.pdf' pagina_nuova.html)
+            done < <(grep -oP "onGenericStreamRead\('\K[^']+\.pdf")
 
             mv pagina_nuova.html pagina_vecchia.html
             git add pagina_vecchia.html
