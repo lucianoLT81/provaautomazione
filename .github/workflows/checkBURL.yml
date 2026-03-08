@@ -23,7 +23,7 @@ jobs:
           NEWPDF=0 #variabile di controllo per il rinvenimento di nuovi pdf od il rivenimento di chiavi specifiche nei nuovi pdf
 
           # Scarica la nuova pagina HTML
-          curl -s "https://sicer.regione.lazio.it/PublicBur/burlazio/FrontEnd" > pagina_nuova.html
+          curl -s "https://sicer.regione.lazio.it/PublicBur/burlazio/FrontEnd/UltimiEdiz" > pagina_nuova.html
 
           # Confronta la nuova pagina con quella precedente
           if ! diff -q pagina_nuova.html pagina_vecchia.html; then
