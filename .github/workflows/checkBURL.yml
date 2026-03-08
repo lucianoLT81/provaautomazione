@@ -2,58 +2,71 @@ name: Controllo BUR Lazio
 
 on:
   schedule:
-    - cron: '0 * * * *' # Ogni ora
+    - cron: '0 * * * *'
   workflow_dispatch:
-        
+
 jobs:
   monitor:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Serve per salvare lo stato della pagina
+      contents: write
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Controllo Sintassi Bash
-        uses: ludeeus/action-shellcheck@master
+
       - name: Install dependencies
         run: sudo apt-get install -y jq poppler-utils
+
       - name: Verifica BUR
         run: |
           set -x
-          NEWPDF=0 #variabile di controllo per il rinvenimento di nuovi pdf od il rivenimento di chiavi specifiche nei nuovi pdf
+          NEWPDF=0
 
-          # Scarica la nuova pagina HTML
-          curl -s "https://sicer.regione.lazio.it/PublicBur/burlazio/FrontEnd/UltimiEdiz" > pagina_nuova.html
+          # 1️⃣ Scarica pagina e crea sessione (cookie)
+          curl -s -c cookies.txt \
+            -A "Mozilla/5.0" \
+            "https://sicer.regione.lazio.it/PublicBur/burlazio/FrontEnd/UltimiEdiz" \
+            > pagina_nuova.html
 
-          # Confronta la nuova pagina con quella precedente
+          # 2️⃣ Confronta con pagina precedente
           if ! diff -q pagina_nuova.html pagina_vecchia.html; then
             mkdir -p allegati_nuovi
 
-            # Estrae i link ai PDF dalla pagina HTML SENZA usare una subshell
+            # 3️⃣ Estrai i nomi dei PDF
+            grep -oP "onGenericStreamRead\('\K[^']+\.pdf" pagina_nuova.html > lista_pdf.txt
+
+            # 4️⃣ Estrai il TICKET dalla pagina
+            TICKET=$(grep -oP 'name="TICKET" value="\K[^"]+' pagina_nuova.html)
+
+            # 5️⃣ Scarica ogni PDF con sessione + TICKET
             while read -r link; do
+              [ -z "$link" ] && continue
+
               NOME_FILE=$(basename "$link")
 
               if [ ! -f "allegati_nuovi/$NOME_FILE" ]; then
-
-                # 🔥 Scarica il PDF usando POST (metodo corretto per il portale BUR)
-                curl -sL -X POST \
+                curl -sL -b cookies.txt -c cookies.txt \
+                  -A "Mozilla/5.0" \
+                  -e "https://sicer.regione.lazio.it/PublicBur/burlazio/FrontEnd/UltimiEdiz" \
+                  -X POST \
                   -d "BL_PAR_GENERIC_FILE_0=$link" \
+                  -d "TICKET=$TICKET" \
                   "https://sicer.regione.lazio.it/PublicBur/burlazio/DynRes/GENERIC_FILE.4" \
                   -o "allegati_nuovi/$NOME_FILE"
 
-                # Analisi del PDF
+                # 6️⃣ Analisi PDF
                 if pdftotext "allegati_nuovi/$NOME_FILE" - | grep -q "2021IT05SFPR006"; then
-                    NEWPDF=2
+                  NEWPDF=2
                 elif [ "$NEWPDF" -ne 2 ]; then
-                    NEWPDF=1
+                  NEWPDF=1
                 fi
               fi
-            done < <(grep -oP "onGenericStreamRead\('\K[^']+\.pdf" pagina_nuova.html)
+            done < lista_pdf.txt
 
             mv pagina_nuova.html pagina_vecchia.html
             git add pagina_vecchia.html
 
-            # Commit SOLO se c'è almeno un nuovo PDF (NEWPDF != 0)
             if [ "$NEWPDF" -ne 0 ]; then
               git config user.name "GitHub Action"
               git config user.email "action@github.com"
@@ -63,15 +76,15 @@ jobs:
             fi
 
             if [ "$NEWPDF" = "1" ]; then
-              echo "NUOVO DOCUMENTO PDF SCARICATO SENZA STRINGA - MALEDIZIONE!"
+              echo "NUOVO DOCUMENTO PDF SCARICATO SENZA STRINGA"
               exit 1
             elif [ "$NEWPDF" = "2" ]; then
-              echo "STRINGA ASILI TROVATA - EVVIVA!"
+              echo "STRINGA TROVATA - EVVIVA!"
               exit 1
             fi
+
           else
             echo "Nulla di nuovo."
             exit 0
           fi
-
 #parole da cercare con la prossima versione: "CCI 2021IT05SFPR006"
