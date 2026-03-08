@@ -29,9 +29,8 @@ jobs:
           if ! diff -q pagina_nuova.html pagina_vecchia.html; then
             mkdir -p allegati_nuovi
 
-            # Estrae i link ai PDF dalla pagina HTML
-            grep -oP 'href="\K[^"]+\.pdf' pagina_nuova.html | while read -r link; do
-              # I link sono relativi, quindi li completo
+            # Estrae i link ai PDF dalla pagina HTML SENZA usare una subshell
+            while read -r link; do
               URL_COMPLETO="https://sicer.regione.lazio.it$link"
               NOME_FILE=$(basename "$link")
 
@@ -44,16 +43,19 @@ jobs:
                     NEWPDF=1
                 fi
               fi
-            done
+            done < <(grep -oP 'href="\K[^"]+\.pdf' pagina_nuova.html)
 
             mv pagina_nuova.html pagina_vecchia.html
             git add pagina_vecchia.html
 
-            git config user.name "GitHub Action"
-            git config user.email "action@github.com"
-            git add pagina_vecchia.html allegati_nuovi/
-            git commit -m "Nuova pagina BUR rilevata"
-            git push
+            # Commit SOLO se c'è almeno un nuovo PDF (NEWPDF != 0)
+            if [ "$NEWPDF" -ne 0 ]; then
+              git config user.name "GitHub Action"
+              git config user.email "action@github.com"
+              git add pagina_vecchia.html allegati_nuovi/
+              git commit -m "Nuova pagina BUR rilevata"
+              git push
+            fi
 
             if [ "$NEWPDF" = "1" ]; then
               echo "NUOVO DOCUMENTO PDF SCARICATO SENZA STRINGA - MALEDIZIONE!"
