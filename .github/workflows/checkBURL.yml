@@ -31,12 +31,17 @@ jobs:
 
             # Estrae i link ai PDF dalla pagina HTML SENZA usare una subshell
             while read -r link; do
-              URL_COMPLETO="https://sicer.regione.lazio.it$link"
               NOME_FILE=$(basename "$link")
 
               if [ ! -f "allegati_nuovi/$NOME_FILE" ]; then
-                curl -sL "$URL_COMPLETO" -o "allegati_nuovi/$NOME_FILE"
 
+                # 🔥 Scarica il PDF usando POST (metodo corretto per il portale BUR)
+                curl -sL -X POST \
+                  -d "BL_PAR_GENERIC_FILE_0=$link" \
+                  "https://sicer.regione.lazio.it/PublicBur/burlazio/DynRes/GENERIC_FILE.4" \
+                  -o "allegati_nuovi/$NOME_FILE"
+
+                # Analisi del PDF
                 if pdftotext "allegati_nuovi/$NOME_FILE" - | grep -q "2021IT05SFPR006"; then
                     NEWPDF=2
                 elif [ "$NEWPDF" -ne 2 ]; then
