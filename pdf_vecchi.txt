@@ -1,7 +1,3 @@
-BUR-2026-16-0.fd.pdf
-BUR-2026-16-0.pdf
-BUR-2026-16-1.fd.pdf
-BUR-2026-16-1.pdf
 BUR-2026-17-0.fd.pdf
 BUR-2026-17-0.pdf
 BUR-2026-18-0.fd.pdf
@@ -18,3 +14,7 @@ BUR-2026-20-1.fd.pdf
 BUR-2026-20-1.pdf
 BUR-2026-21-0.fd.pdf
 BUR-2026-21-0.pdf
+BUR-2026-22-0.fd.pdf
+BUR-2026-22-0.pdf
+BUR-2026-22-1.fd.pdf
+BUR-2026-22-1.pdf
